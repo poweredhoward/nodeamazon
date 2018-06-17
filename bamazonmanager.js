@@ -54,6 +54,46 @@ function ask(){
     })
 }
 
+function addNewProduct(){
+    inquirer.prompt([
+        {
+            type: "input",
+            message: "Product Name",
+            name: "name"
+        },
+        {
+            type: "input",
+            message: "Department",
+            name: "dept"
+        },
+        {
+            type: "input",
+            message: "Price per unit",
+            name: "price",
+        },
+        {
+            type: "input",
+            message: "Initial Inventory",
+            name: "quantity"
+        }
+    ]).then( function(answer){
+        var name = answer.name;
+        var dept = answer.dept;
+        var price = answer.price;
+        var quantity = answer.quantity;
+
+        connection.query(
+            "INSERT INTO products(product_name, department_name, price, stock_quantity) values\
+            (?, ?, ?, ?)",
+            [name, dept, price, quantity],
+            function(err, data){
+                if (err) throw err;
+                managerView();
+            }
+        )
+    })
+}
+
 function addToInventory(){
     //managerView();
     inquirer.prompt([
