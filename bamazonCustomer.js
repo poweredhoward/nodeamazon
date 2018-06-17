@@ -69,10 +69,10 @@ function ask(){
 //Show table in nice format
 function customerView(){
     connection.query(
-        "SELECT * FROM products",
+        "SELECT item_id, product_name, department_name, price FROM products",
         function(err, data){
             if (err) throw data;
-            console.table("\nProducts Table", data);
+            console.table("\nProducts available", data);
             ask();
             //connection.end();
         }
