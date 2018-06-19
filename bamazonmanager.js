@@ -30,7 +30,8 @@ function ask(){
                 "View Products for Sale",
                 "View Low Inventory",
                 "Add to Inventory",
-                "Add New Product"
+                "Add New Product",
+                "Exit"
             ],
             name: "choice"
         }
@@ -49,6 +50,9 @@ function ask(){
                 break;
             case "Add New Product":
                 addNewProduct();
+                break;
+            case "Exit":
+                connection.end();
                 break;
         }
     })
@@ -83,11 +87,14 @@ function addNewProduct(){
         var quantity = answer.quantity;
 
         connection.query(
-            "INSERT INTO products(product_name, department_name, price, stock_quantity) values\
-            (?, ?, ?, ?)",
-            [name, dept, price, quantity],
+            "INSERT INTO products(product_name, department_name, price, stock_quantity, products_sales) values\
+            (?, ?, ?, ?, ?)",
+            [name, dept, price, quantity, 0],
             function(err, data){
-                if (err) throw err;
+                if (err){
+                    console.log("Bad Query, try again");
+                    ask();
+                }
                 managerView();
             }
         )
@@ -114,9 +121,13 @@ function addToInventory(){
             "UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?",
             [quantity, id],
             function(err, data){
-                if (err) throw err;
+                if (err){
+                    console.log("Bad Query, try again");
+                    ask();
+                }
                 console.log("Stock added!");
-                managerView();
+                //managerView();
+                ask();
             }
         )
     })
@@ -126,8 +137,13 @@ function lowInventory(){
     connection.query(
         "SELECT * FROM products WHERE stock_quantity < 5",
         function(err, data){
-            if (err) throw err;
+            if (err){
+                console.log("Bad Query, try again");
+                ask();
+            }
             console.table("\nItems with under 5 left", data);
+            //managerView();
+            ask();
         }
     )
 }
@@ -135,12 +151,16 @@ function lowInventory(){
 //Show table in nice format
 function managerView(cb){
     connection.query(
-        "SELECT * FROM products",
+        "SELECT item_id as 'Item Number', product_name AS 'Product Name',\
+         department_name as 'Department', price as 'Price', products_sales AS 'Product Sales', stock_quantity AS 'Number in Stock' FROM products",
         function(err, data){
             if (err) throw data;
             console.table("\nProducts available", data);
             if(cb !== undefined){
                 cb();
+            }
+            else{
+                ask();
             }
             
             //ask();

@@ -24,7 +24,7 @@ function ask(){
     inquirer.prompt([
         {
             type: "input",
-            message: "What is the ID of the product you want?",
+            message: "What is the ID of the item you want? (Press CTRL + C to quit)",
             name: "id"  
         },
         {
@@ -48,8 +48,8 @@ function ask(){
                     var total = price * num_requested; 
                     //Update value in DB
                     connection.query(
-                        "UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?",
-                        [num_requested, id],
+                        "UPDATE products SET stock_quantity = stock_quantity - ?, products_sales = products_sales + ?  WHERE item_id = ?",
+                        [num_requested, total, id],
                         function(err,data){
                             if (err) throw err;
                             console.log("Transaction was $" + total);
@@ -69,7 +69,8 @@ function ask(){
 //Show table in nice format
 function customerView(){
     connection.query(
-        "SELECT item_id, product_name, department_name, price FROM products",
+        "SELECT item_id as 'Item Number', product_name AS 'Product Name',\
+         department_name as 'Department', price as 'Price' FROM products",
         function(err, data){
             if (err) throw data;
             console.table("\nProducts available", data);
